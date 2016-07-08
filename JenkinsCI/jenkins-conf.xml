@@ -1,0 +1,4 @@
+<Context docBase="/opt/tomcat/webapps/jenkins.war">
+<Environment name="JENKINS_HOME" type="java.lang.String"
+value="/data/jenkins" override="true"/>
+</Context>
