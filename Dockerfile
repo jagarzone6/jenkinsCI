@@ -153,3 +153,5 @@ RUN \
   /etc/init.d/ssh restart
 
 ADD ansible.cfg /etc/ansible/ansible.cfg
+
+RUN apt-get -y install telnet
