@@ -33,11 +33,19 @@ wget -c -O "jdk-7u79-linux-x64.tar.gz" --no-check-certificate --no-cookies --hea
 	rm jdk-7u79-linux-x64.tar.gz  && \
 	mv /jdk1.7.0_79 /jdk
 
-ENV JAVA_HOME /jdk
+
+# ----------- Install java 8 -------------
+RUN \
+wget -c -O "jdk-8u91-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jdk-8u91-linux-x64.tar.gz" && \
+
+	tar -zxvf  jdk-8u91-linux-x64.tar.gz -C /  && \
+	rm jdk-8u91-linux-x64.tar.gz  && \
+	mv /jdk1.8.0_91 /jdk8
+
+ENV JAVA_HOME /jdk8
 ENV JRE_HOME  $JAVA_HOME/jre
 ENV PATH $PATH:$JAVA_HOME/bin
 RUN java -version
-
 
 # ----------- Install Tomcat -------------#
 RUN \
@@ -89,13 +97,6 @@ RUN \
 ADD UnlimitedJCEPolicy/local_policy.jar /jdk/jre/lib/security/local_policy.jar
 ADD UnlimitedJCEPolicy/US_export_policy.jar /jdk/jre/lib/security/US_export_policy.jar
 
-# ----------- Install java 8 -------------
-RUN \
-wget -c -O "jdk-8u91-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jdk-8u91-linux-x64.tar.gz" && \
-
-	tar -zxvf  jdk-8u91-linux-x64.tar.gz -C /  && \
-	rm jdk-8u91-linux-x64.tar.gz  && \
-	mv /jdk1.8.0_91 /jdk8
 
 # ----------- Install maven 3.3.9 -------------
 RUN \
@@ -104,6 +105,12 @@ wget -c -O "apache-maven-3.3.9-bin.tar.gz" --no-check-certificate --no-cookies "
 	tar -zxvf  apache-maven-3.3.9-bin.tar.gz -C /  && \
 	rm apache-maven-3.3.9-bin.tar.gz  && \
 	mv /apache-maven-3.3.9 /maven-3.3.9
+
+#----------- Install docker-libs needed and create docker group to add root and jenkins users-----------
+RUN apt-get install -y libltdl7 libsystemd-journal0
+
+RUN groupadd docker && \
+ usermod -aG docker $(whoami)
 
 # Start Tomcat from supervisor
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -114,7 +121,7 @@ CMD ["/usr/bin/supervisord"]
 RUN \
   groupadd build && \
   useradd --create-home --shell /bin/bash --groups build jenkins
-
+RUN usermod -aG docker jenkins
 #Set JENKINS Home ENV var to /data/jenkins folder
 RUN su jenkins -c 'mkdir ~/data'
 RUN su jenkins -c 'mkdir ~/data/jenkins'
@@ -155,3 +162,16 @@ RUN \
 ADD ansible.cfg /etc/ansible/ansible.cfg
 
 RUN apt-get -y install telnet
+
+# ----------- Configure SSH known hosts-------------
+ADD known-hosts known-hosts
+
+RUN \
+  touch ~/.ssh/known_hosts && \
+  cat known-hosts >> ~/.ssh/known_hosts && \
+  rm known-hosts && \
+  /etc/init.d/ssh restart
+
+RUN apt-get -y install curl
+
+RUN apt-get -y install jq

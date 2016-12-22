@@ -1,0 +1,12 @@
+#Environment = 1a11722
+#Service = 1s7823
+#Image = cd.easysol.net:5000/dmconsole/releases:dmc_server_qa_tick-
+
+
+eval $(ssh-agent)
+ssh-agent sh
+export CATTLE_ACCESS_KEY="62C38749D6C621457448"  
+export CATTLE_SECRET_KEY="PJQG7oa4zW97U4sF4uXzG9Jxi8Y1HAxshEWQRzp8" 
+export RANCHER_API_URL="http://cd.easysol.net:9091/v1" 
+./rancher.sh upgrade 1a11722 1s7823 cd.easysol.net:5000/dmconsole/releases:dmc_server_qa_tick-
+./rancher.sh finish_upgrade 1a11722 1s7823

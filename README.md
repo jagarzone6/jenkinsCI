@@ -1,3 +1,0 @@
-# jenkinsCI
-RESTART SH FILE:
-(sudo docker kill jenkins_jenkinsCI)|echo; (sudo docker rm --force jenkins_jenkinsCI)|echo; docker run --privileged -p 6060:8080 -p 1100:22 -d -v /home/develop/Jenkins/Jenkins:/home/jenkins/data/jenkins -v /home/develop/Jenkins/sshKeys:/home/jenkins/sshKeys -v /home/develop/Jenkins/.m2:/root/.m2 -v /home/develop/Jenkins/ansible_playbooks:/home/jenkins/ansible_playbooks/continuous_delivery -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v /usr/lib/x86_64-linux-gnu/libapparmor.so.1.1.0:/lib/x86_64-linux-gnu/libapparmor.so.1 --name jenkins_jenkinsCI jagarzone/jenkinsci:latest
